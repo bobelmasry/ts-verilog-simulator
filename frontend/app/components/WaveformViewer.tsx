@@ -479,7 +479,7 @@ const WaveformViewer = forwardRef<WaveformViewerRef, WaveformViewerProps>(({ vcd
   useEffect(() => {
     if (!vcdData) return;
 
-    console.log('Starting VCD parsing...');
+    // console.log('Starting VCD parsing...');
     const lines = vcdData.split('\n');
     // Parse timescale if present
     const tsLine = lines.find(l => l.startsWith('$timescale'));
@@ -533,7 +533,7 @@ const WaveformViewer = forwardRef<WaveformViewerRef, WaveformViewerProps>(({ vcd
       if (line.startsWith('#')) {
         currentTime = parseInt(line.substring(1));
         maxTimeValue = Math.max(maxTimeValue, currentTime);
-        console.log(`Time update: ${currentTime}`);
+        //console.log(`Time update: ${currentTime}`);
       } else if (line.length > 0 && !line.startsWith('$')) {
         // Parse value changes
         if (line[0] === '0' || line[0] === '1' || line[0] === 'x' || line[0] === 'z') {
@@ -542,7 +542,7 @@ const WaveformViewer = forwardRef<WaveformViewerRef, WaveformViewerProps>(({ vcd
           const id = line.substring(1).trim();
           const name = idToName[id];
           if (tempSignals[name]) {
-            console.log(`Single bit value change at ${currentTime}: ${name} = ${value}`);
+            //console.log(`Single bit value change at ${currentTime}: ${name} = ${value}`);
             tempSignals[name].values.push({ time: currentTime, value });
           }
         } else if (line.startsWith('b')) {
@@ -556,7 +556,7 @@ const WaveformViewer = forwardRef<WaveformViewerRef, WaveformViewerProps>(({ vcd
               const width = idToWidth[id];
               // Pad the value to the correct width
               const paddedValue = value.padStart(width, '0');
-              console.log(`Multi-bit value change at ${currentTime}: ${name} = ${paddedValue}`);
+              //console.log(`Multi-bit value change at ${currentTime}: ${name} = ${paddedValue}`);
               tempSignals[name].values.push({ time: currentTime, value: paddedValue });
             }
           }
@@ -568,7 +568,7 @@ const WaveformViewer = forwardRef<WaveformViewerRef, WaveformViewerProps>(({ vcd
             const id = match[2];
             const name = idToName[id];
             if (tempSignals[name]) {
-              console.log(`Real value change at ${currentTime}: ${name} = ${value}`);
+              //console.log(`Real value change at ${currentTime}: ${name} = ${value}`);
               tempSignals[name].values.push({ time: currentTime, value: `r${value}` });
             }
           }
@@ -582,24 +582,24 @@ const WaveformViewer = forwardRef<WaveformViewerRef, WaveformViewerProps>(({ vcd
             if (tempSignals[name]) {
               const width = idToWidth[id];
               const paddedValue = value.padStart(width, '0');
-              console.log(`Alternative format value change at ${currentTime}: ${name} = ${paddedValue}`);
+              //console.log(`Alternative format value change at ${currentTime}: ${name} = ${paddedValue}`);
               tempSignals[name].values.push({ time: currentTime, value: paddedValue });
             }
           } else {
-            console.log(`Unrecognized value format: ${line}`);
+            //console.log(`Unrecognized value format: ${line}`);
           }
         }
       }
     }
 
     // Log the VCD file content for debugging
-    console.log('VCD file content:', vcdData);
+    // console.log('VCD file content:', vcdData);
 
     // Ensure all signals have at least one value at time 0
     for (const signal of Object.values(tempSignals)) {
       if (signal.values.length === 0) {
         const defaultValue = signal.width > 1 ? '0'.repeat(signal.width) : '0';
-        console.log(`Adding default value at time 0 for ${signal.name}: ${defaultValue}`);
+        //console.log(`Adding default value at time 0 for ${signal.name}: ${defaultValue}`);
         signal.values.push({ time: 0, value: defaultValue });
       }
     }
@@ -637,9 +637,9 @@ const WaveformViewer = forwardRef<WaveformViewerRef, WaveformViewerProps>(({ vcd
   }, [vcdData]);
 
   // After VCD parsing, add for debugging:
-  useEffect(() => {
-    console.log('Parsed signals:', signals);
-  }, [signals]);
+  // useEffect(() => {
+  //   console.log('Parsed signals:', signals);
+  // }, [signals]);
 
   // Use ResizeObserver for robust canvas sizing
   useEffect(() => {
@@ -1387,8 +1387,8 @@ const WaveformViewer = forwardRef<WaveformViewerRef, WaveformViewerProps>(({ vcd
               alignItems: 'center',
               position: 'relative'
             }}>
-              <div style={{ width: '75%', paddingLeft: 8 }}>Name</div>
-              <div style={{ width: '25%' }}>Value</div>
+              <div style={{ width: '50%', paddingLeft: 8 }}>Name</div>
+              <div style={{ width: '50%' }}>Value</div>
             </div>
 
             {/* Signal options modal */}
@@ -1461,10 +1461,11 @@ const WaveformViewer = forwardRef<WaveformViewerRef, WaveformViewerProps>(({ vcd
                     display: 'flex',
                     height: SIGNAL_ROW_HEIGHT,
                     lineHeight: `${SIGNAL_ROW_HEIGHT}px`,
+                    justifyContent: 'space-around',
                   }}
                   onClick={() => setSelectedSignal(selectedSignal === signal.name ? null : signal.name)}
                 >
-                  <div style={{ width: '75%', paddingLeft: 8, display: 'flex', alignItems: 'center', position: 'relative' }}>
+                  <div style={{ width: '50%', paddingLeft: 8, display: 'flex', alignItems: 'center', position: 'relative' }}>
                     {signal.width > 1 && (
                       <span
                         style={{
@@ -1497,7 +1498,7 @@ const WaveformViewer = forwardRef<WaveformViewerRef, WaveformViewerProps>(({ vcd
                     )}
                     {signal.name} {signal.width > 1 ? `[${signal.width-1}:0]` : ''}
                   </div>
-                  <div style={{ width: '25%', paddingLeft: 4 }}>
+                  <div style={{ width: '50%', paddingLeft: 4 }}>
                     {(() => {
                       const currentValue = hoverInfo
                         ? getSignalValueAtTime(signal, hoverInfo.time)

@@ -395,7 +395,7 @@ export default function SimulationPage() {
   const [reportOutput, setReportOutput] = useState<string>('');
   
   // FPGA Flow state
-  type MainTab = 'simulation' | 'synthesis' | 'implementation' | 'bitstream' | 'programming' | 'complete_flow';
+  type MainTab = 'simulation' | 'synthesis' | 'implementation' | 'bitstream' | 'programming' | 'complete_flow' | 'full_simulation';
   const [activeMainTab, setActiveMainTab] = useState<MainTab>('simulation');
   const [synthesisResults, setSynthesisResults] = useState<any>(null);
 
@@ -1453,6 +1453,22 @@ export default function SimulationPage() {
           </span>
         </button>
         <button
+          onClick={() => setActiveMainTab('full_simulation')}
+          className={`px-4 py-2 text-sm font-medium ${
+            activeMainTab === 'full_simulation'
+              ? 'border-b-2 border-cyan-500 text-cyan-400 bg-[#1e1e1e]'
+              : 'text-gray-400 hover:text-gray-300 hover:bg-[#2a2d2e]'
+          }`}
+        >
+          <span className="flex items-center">
+            <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M3 3h18v18H3V3z" />
+              <path d="M16 8l-4 4-4-4" />
+            </svg>
+            Fullscreen Simulation Viewer
+          </span>
+        </button>
+        <button
           onClick={() => setActiveMainTab('synthesis')}
           className={`px-4 py-2 text-sm font-medium ${
             activeMainTab === 'synthesis'
@@ -1786,7 +1802,7 @@ export default function SimulationPage() {
                   </div>
                 </div>
               </div>
-              <div className="h-[60%] min-h-[200px]">
+              <div className="h-[70%] min-h-[200px]">
                 <div className="flex items-center justify-between mb-2">
                   <h2 className="text-xl font-semibold text-white">Waveform</h2>
                   <div className="flex space-x-2">
@@ -2001,6 +2017,102 @@ export default function SimulationPage() {
             </div>
           </div>
         )}
+
+        {activeMainTab === 'full_simulation' && (
+          <div className="flex bg-[#1e1e1e] ml-8 gap-8 mt-4 mb-4 rounded-lg shadow-lg">
+          <h2 className="text-xl font-semibold text-white">Waveform</h2>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => waveformViewerRef.current?.handleZoomIn()}
+                      className="bg-[#3D3D3D] text-white px-2 py-1 rounded hover:bg-[#4D4D4D]"
+                      title="Zoom In (+)"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => waveformViewerRef.current?.handleZoomOut()}
+                      className="bg-[#3D3D3D] text-white px-2 py-1 rounded hover:bg-[#4D4D4D]"
+                      title="Zoom Out (-)"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => waveformViewerRef.current?.handlePanLeft()}
+                      className="bg-[#3D3D3D] text-white px-2 py-1 rounded hover:bg-[#4D4D4D]"
+                      title="Pan Left (←)"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => waveformViewerRef.current?.handlePanRight()}
+                      className="bg-[#3D3D3D] text-white px-2 py-1 rounded hover:bg-[#4D4D4D]"
+                      title="Pan Right (→)"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => waveformViewerRef.current?.handleFitToView()}
+                      className="bg-[#3D3D3D] text-white px-2 py-1 rounded hover:bg-[#4D4D4D]"
+                      title="Fit to View (F)"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M3 4a1 1 0 011-1h4a1 1 0 010 2H6.414l2.293 2.293a1 1 0 11-1.414 1.414L5 6.414V8a1 1 0 01-2 0V4zm9 1a1 1 0 010-2h4a1 1 0 011 1v4a1 1 0 01-2 0V6.414l-2.293 2.293a1 1 0 11-1.414-1.414L13.586 5H12zm-9 7a1 1 0 012 0v1.586l2.293-2.293a1 1 0 111.414 1.414L6.414 15H8a1 1 0 010 2H4a1 1 0 01-1-1v-4zm13-1a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 010-2h1.586l-2.293-2.293a1 1 0 111.414-1.414L15 13.586V12a1 1 0 011-1z" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => waveformViewerRef.current?.handleZoomToRange()}
+                      className="bg-[#3D3D3D] text-white px-2 py-1 rounded hover:bg-[#4D4D4D]"
+                      title="Zoom to 0-60ns (Z)"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                        <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => waveformViewerRef.current?.handleCollapseAll()}
+                      className="bg-[#3D3D3D] text-white px-2 py-1 rounded hover:bg-[#4D4D4D]"
+                      title="Collapse All"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => waveformViewerRef.current?.handleExpandAll()}
+                      className="bg-[#3D3D3D] text-white px-2 py-1 rounded hover:bg-[#4D4D4D]"
+                      title="Expand All"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => waveformViewerRef.current?.handleSignalOptions()}
+                      className="bg-[#3D3D3D] text-white px-2 py-1 rounded hover:bg-[#4D4D4D]"
+                      title="Signal Options"
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 8 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 8a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 8 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09c0 .66.39 1.25 1 1.51a1.65 1.65 0 0 0 1.82.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 8c.13.31.2.65.2 1v.09c0 .66-.39 1.25-1 1.51a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 16 4.6c.31-.13.65-.2 1-.2h.09c.66 0 1.25.39 1.51 1a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 8c-.13-.31-.2-.65-.2-1V6.91c0-.66.39-1.25 1-1.51a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 8c-.13.31-.2.65-.2 1v.09c0 .66.39 1.25 1 1.51a1.65 1.65 0 0 0 1.82.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 21 15c-.31.13-.65.2-1 .2h-.09c-.66 0-1.25-.39-1.51-1a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 19.4 15z"/></svg>
+                    </button>
+                  </div>
+                  </div>
+                )}
+        {activeMainTab === 'full_simulation' && (
+          waveformData && (
+          <WaveformViewer ref={waveformViewerRef} vcdData={waveformData} onSignalOptionsDone={runSimulation} />
+          )
+        )}
+        
+        
+        
       </div>
       
       {/* Footer */}

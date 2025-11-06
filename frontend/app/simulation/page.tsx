@@ -8,6 +8,7 @@ import ImplementationViewer from '../components/ImplementationViewer';
 import BitstreamViewer from '../components/BitstreamViewer';
 import ProgrammingInterface from '../components/ProgrammingInterface';
 import FPGAFlow from '../components/FPGAFlow';
+import { set } from 'zod';
 
 // Define file type
 interface File {
@@ -24,39 +25,39 @@ const BACKEND_API_URL = `${BACKEND_BASE_URL}/api/v1`;
 const USE_REAL_SIMULATION = true; // Flag to use real simulation instead of mock data
 
 // VS Code-like theme configuration
-const vsCodeTheme = {
-  base: 'vs-dark',
-  inherit: true,
-  rules: [
-    { token: 'comment', foreground: '6A9955' },
-    { token: 'keyword', foreground: 'C586C0' },
-    { token: 'string', foreground: 'CE9178' },
-    { token: 'number', foreground: 'B5CEA8' },
-    { token: 'operator', foreground: 'D4D4D4' },
-    { token: 'type', foreground: '4EC9B0' },
-    { token: 'function', foreground: 'DCDCAA' },
-    { token: 'variable', foreground: '9CDCFE' },
-  ],
-  colors: {
-    'editor.background': '#1E1E1E',
-    'editor.foreground': '#D4D4D4',
-    'editor.lineHighlightBackground': '#2F3337',
-    'editor.selectionBackground': '#264F78',
-    'editor.inactiveSelectionBackground': '#3A3D41',
-    'editorCursor.foreground': '#A6A6A6',
-    'editorWhitespace.foreground': '#3A3A3A',
-    'editorLineNumber.foreground': '#858585',
-    'editorLineNumber.activeForeground': '#C6C6C6',
-    'editorIndentGuide.background': '#404040',
-    'editorIndentGuide.activeBackground': '#707070',
-    'editor.selectionHighlightBackground': '#264F78',
-    'editor.wordHighlightBackground': '#575757',
-    'editor.wordHighlightStrongBackground': '#004972',
-    'editorBracketMatch.background': '#0D3A58',
-    'editorBracketMatch.border': '#0D3A58',
-    'editorGutter.background': '#1E1E1E',
-  },
-};
+// const vsCodeTheme = {
+//   base: 'vs-dark',
+//   inherit: true,
+//   rules: [
+//     { token: 'comment', foreground: '6A9955' },
+//     { token: 'keyword', foreground: 'C586C0' },
+//     { token: 'string', foreground: 'CE9178' },
+//     { token: 'number', foreground: 'B5CEA8' },
+//     { token: 'operator', foreground: 'D4D4D4' },
+//     { token: 'type', foreground: '4EC9B0' },
+//     { token: 'function', foreground: 'DCDCAA' },
+//     { token: 'variable', foreground: '9CDCFE' },
+//   ],
+//   colors: {
+//     'editor.background': '#1E1E1E',
+//     'editor.foreground': '#D4D4D4',
+//     'editor.lineHighlightBackground': '#2F3337',
+//     'editor.selectionBackground': '#264F78',
+//     'editor.inactiveSelectionBackground': '#3A3D41',
+//     'editorCursor.foreground': '#A6A6A6',
+//     'editorWhitespace.foreground': '#3A3A3A',
+//     'editorLineNumber.foreground': '#858585',
+//     'editorLineNumber.activeForeground': '#C6C6C6',
+//     'editorIndentGuide.background': '#404040',
+//     'editorIndentGuide.activeBackground': '#707070',
+//     'editor.selectionHighlightBackground': '#264F78',
+//     'editor.wordHighlightBackground': '#575757',
+//     'editor.wordHighlightStrongBackground': '#004972',
+//     'editorBracketMatch.background': '#0D3A58',
+//     'editorBracketMatch.border': '#0D3A58',
+//     'editorGutter.background': '#1E1E1E',
+//   },
+// };
 
 // Editor options for Monaco
 const editorOptions = {
@@ -226,92 +227,139 @@ const parseWarnings = (msg: string): string => {
 };
 
 // Place formatError at the top of the file so it is in scope everywhere
-const formatError = (msg: string): string => {
-  // First, try to parse the response if it's JSON
-  let errorData;
-  try {
-    errorData = JSON.parse(msg);
-    if (errorData.detail) {
-      msg = errorData.detail;
-    } else if (errorData.output) {
-      msg = errorData.output;
-    }
-  } catch (e) {
-    // If not JSON, use the message as is
-  }
+// const formatError = (msg: string): string => {
+//   // First, try to parse the response if it's JSON
+//   let errorData;
+//   try {
+//     errorData = JSON.parse(msg);
+//     if (errorData.detail) {
+//       msg = errorData.detail;
+//     } else if (errorData.output) {
+//       msg = errorData.output;
+//     }
+//   } catch (e) {
+//     // If not JSON, use the message as is
+//   }
 
-  // Remove temp file paths and clean up the message
-  msg = msg.replace(/\/?[\w\d\-\/]*\/T\/tmp[^/]+\//g, '');
-  msg = msg.replace(/(\w+\.v):(\d+):\s*(\w+\.v):(\d+):/g, '$1:$2:');
-  msg = msg.replace(/I give up\./g, '');
-  msg = msg.replace(/\[object Object\]/g, 'Invalid input');
-  msg = msg.replace(/error:\s*/g, '');
-  msg = msg.replace(/syntax error\s*/g, '');
-  msg = msg.replace(/(\w+\.v):(\d+):\s*/g, '$1:$2: ');
+//   // Remove temp file paths and clean up the message
+//   msg = msg.replace(/\/?[\w\d\-\/]*\/T\/tmp[^/]+\//g, '');
+//   msg = msg.replace(/(\w+\.v):(\d+):\s*(\w+\.v):(\d+):/g, '$1:$2:');
+//   msg = msg.replace(/I give up\./g, '');
+//   msg = msg.replace(/\[object Object\]/g, 'Invalid input');
+//   msg = msg.replace(/error:\s*/g, '');
+//   msg = msg.replace(/syntax error\s*/g, '');
+//   msg = msg.replace(/(\w+\.v):(\d+):\s*/g, '$1:$2: ');
 
-  // Split into lines and filter empty lines
-  const errorLines = msg.split('\n').filter(line => line.trim());
+//   // Split into lines and filter empty lines
+//   const errorLines = msg.split('\n').filter(line => line.trim());
   
-  // Group errors by file and type
-  const fileErrors: Record<string, string[]> = {};
-  const otherErrors: string[] = [];
+//   // Group errors by file and type
+//   const fileErrors: Record<string, string[]> = {};
+//   const otherErrors: string[] = [];
 
-  errorLines.forEach(line => {
-    const match = line.match(/(\w+\.v):(\d+):\s*(.*)/);
-    if (match) {
-      const [_, file, lineNum, text] = match;
-      const errorText = text.trim();
+//   errorLines.forEach(line => {
+//     const match = line.match(/(\w+\.v):(\d+):\s*(.*)/);
+//     if (match) {
+//       const [_, file, lineNum, text] = match;
+//       const errorText = text.trim();
       
-      if (!fileErrors[file]) {
-        fileErrors[file] = [];
-      }
-      fileErrors[file].push(`Line ${lineNum}: ${errorText}`);
-      } else if (line.trim()) {
-      otherErrors.push(line.trim());
-    }
-  });
+//       if (!fileErrors[file]) {
+//         fileErrors[file] = [];
+//       }
+//       fileErrors[file].push(`Line ${lineNum}: ${errorText}`);
+//       } else if (line.trim()) {
+//       otherErrors.push(line.trim());
+//     }
+//   });
 
-  // Format the errors by file
-  let formattedErrors = '';
+//   // Format the errors by file
+//   let formattedErrors = '';
   
-  // First, show file-specific errors
-  Object.entries(fileErrors).forEach(([file, errors]) => {
-    if (errors.length > 0) {
-      formattedErrors += `${file} Errors:\n`;
-      errors.forEach(error => {
-        formattedErrors += `  ${error}\n`;
-      });
-      formattedErrors += '\n';
-    }
-  });
+//   // First, show file-specific errors
+//   Object.entries(fileErrors).forEach(([file, errors]) => {
+//     if (errors.length > 0) {
+//       formattedErrors += `${file} Errors:\n`;
+//       errors.forEach(error => {
+//         formattedErrors += `  ${error}\n`;
+//       });
+//       formattedErrors += '\n';
+//     }
+//   });
 
-  // Then show other errors if any
-  if (otherErrors.length > 0) {
-    formattedErrors += 'Other Errors:\n';
-    otherErrors.forEach(error => {
-      formattedErrors += `  ${error}\n`;
-      });
-  }
+//   // Then show other errors if any
+//   if (otherErrors.length > 0) {
+//     formattedErrors += 'Other Errors:\n';
+//     otherErrors.forEach(error => {
+//       formattedErrors += `  ${error}\n`;
+//       });
+//   }
 
-  return formattedErrors.trim() || 'No errors found.';
-};
+//   return formattedErrors.trim() || 'No errors found.';
+// };
 
 export default function SimulationPage() {
   // State for files
-  const [files, setFiles] = useState<File[]>([
-    {
-      id: 'design',
-      name: 'design.v',
-      language: 'verilog',
-      content: ''
-    },
-    {
-      id: 'testbench',
-      name: 'testbench.v',
-      language: 'verilog',
-      content: ''
-    }
-  ]);
+    interface CustomFile {
+    id: string;
+    name: string;
+    language: 'verilog' | 'systemverilog';
+    content: string;
+  }
+
+  interface CustomFile {
+    id: string;
+    name: string;
+    language: "verilog" | "systemverilog";
+    content: string;
+  }
+
+  const [files, setFiles] = useState<CustomFile[]>(() => {
+    // Load from localStorage on initial render
+    const storedFiles = localStorage.getItem("simulationFiles");
+    return storedFiles ? JSON.parse(storedFiles) : [
+      { id: "design", name: "design.v", language: "verilog", content: "" },
+      { id: "testbench", name: "testbench.v", language: "verilog", content: "" },
+    ];
+  });
+
+  // Save to localStorage whenever files change
+  useEffect(() => {
+    localStorage.setItem("simulationFiles", JSON.stringify(files));
+  }, [files]);
+
+  const handleBulkUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = e.target.files;
+    if (!selectedFiles) return;
+
+    const readFile = (file: Blob): Promise<string> => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsText(file);
+      });
+    };
+
+    Promise.all(
+      Array.from(selectedFiles).map(async (file) => {
+        const content = await readFile(file);
+        const language: "verilog" | "systemverilog" = file.name.endsWith(".sv")
+          ? "systemverilog"
+          : "verilog";
+
+        return {
+          id: file.name.replace(/\.[^/.]+$/, ""), // remove extension for id
+          name: file.name,
+          language,
+          content,
+        } satisfies CustomFile;
+      })
+    )
+      .then((newFiles) => {
+        setFiles((prevFiles) => [...prevFiles, ...newFiles]);
+      })
+      .catch((err) => console.error("Error reading files:", err));
+  };
 
   // State for active file
   const [activeFileId, setActiveFileId] = useState('design');
@@ -337,6 +385,7 @@ export default function SimulationPage() {
   const [showManualTestbenchInput, setShowManualTestbenchInput] = useState(false);
   const [manualTestbenchName, setManualTestbenchName] = useState('');
   const [showHelpModal, setShowHelpModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [currentTime, setCurrentTime] = useState('');
   const [activeErrorTab, setActiveErrorTab] = useState<'errors' | 'warnings'>('errors');
   const [activeOutputTab, setActiveOutputTab] = useState<'output' | 'errors' | 'warnings' | 'log' | 'report'>('output');
@@ -404,7 +453,6 @@ export default function SimulationPage() {
   // Function to check backend status
   const checkBackendStatus = async (): Promise<boolean> => {
     try {
-      console.log('Checking backend status at:', `${BACKEND_BASE_URL}/health`);
       const response = await fetch(`${BACKEND_BASE_URL}/health`, {
         method: 'GET',
         headers: {
@@ -416,20 +464,11 @@ export default function SimulationPage() {
         mode: 'cors'
       });
       
-      console.log('Backend response:', {
-        status: response.status,
-        statusText: response.statusText,
-        ok: response.ok,
-        headers: Object.fromEntries(response.headers.entries())
-      });
-      
       if (response.ok) {
         const data = await response.json();
-        console.log('Backend health data:', data);
         setBackendStatus('online');
         return true;
       } else {
-        console.error('Backend returned non-OK status:', response.status);
         setBackendStatus('offline');
         return false;
       }
@@ -513,10 +552,7 @@ export default function SimulationPage() {
     // Update state with the found modules
     setTopModules(moduleList);
     setTopTestbenches(testbenchList);
-    
-    console.log('Found modules:', moduleList);
-    console.log('Found testbenches:', testbenchList);
-    
+     
     // If we have modules but no selected module, select the first one
     if (moduleList.length > 0 && !selectedTopModule) {
       setSelectedTopModule(moduleList[0]);
@@ -671,8 +707,6 @@ export default function SimulationPage() {
 
   // Close a file
   const closeFile = (fileId: string) => {
-    // Don't allow closing the last file
-    if (files.length <= 1) return;
     
     // Remove the file from the list
     setFiles(prevFiles => prevFiles.filter(file => file.id !== fileId));
@@ -875,7 +909,7 @@ export default function SimulationPage() {
 
           // Set the error states with the formatted messages
           setErrorType('compilation');
-        setError('Simulation failed');
+          setError('Simulation failed');
           setErrorDetails(formattedErrors);
           setErrorOutput(formattedErrors);
           setWarningOutput(formattedWarnings);
@@ -889,8 +923,8 @@ export default function SimulationPage() {
           
           // Clean up the error message before formatting
           errorMessage = errorMessage
-            .replace(/\/?[\w\d\-\/]*\/T\/tmp[^/]+\//g, '')
-            .replace(/(\w+\.v):(\d+):\s*(\w+\.v):(\d+):/g, '$1:$2:')
+          .replace(/\/?[\w\d\-\/]*\/T\/tmp[^/]+\//g, '')
+          .replace(/(\w+\.v):(\d+):\s*(\w+\.v):(\d+):/g, '$1:$2:')
           .replace(/I give up\./g, '')
           .replace(/\[object Object\]/g, 'Invalid input')
           .replace(/error:\s*/g, '')
@@ -902,10 +936,10 @@ export default function SimulationPage() {
           const formattedWarnings = parseWarnings(errorMessage);
 
           // Set the error states with the formatted messages
-        setErrorType('compilation');
-        setError('Simulation failed');
-        setErrorDetails(formattedErrors);
-        setErrorOutput(formattedErrors);
+          setErrorType('compilation');
+          setError('Simulation failed');
+          setErrorDetails(formattedErrors);
+          setErrorOutput(formattedErrors);
           setWarningOutput(formattedWarnings);
           setSimulationOutput(formattedErrors); // Use formatted errors in simulation output
           setLogOutput(errorMessage);
@@ -1165,52 +1199,53 @@ export default function SimulationPage() {
   };
 
   // Validate Verilog code for common syntax errors
-  const validateVerilogCode = (code: string): string[] => {
-    const errors: string[] = [];
+  // const validateVerilogCode = (code: string): string[] => {
+  //   const errors: string[] = [];
     
-    // Skip validation if code is empty
-    if (!code || code.trim() === '') {
-      return errors;
-    }
+  //   // Skip validation if code is empty
+  //   if (!code || code.trim() === '') {
+  //     return errors;
+  //   }
     
-    // Check for missing module declaration
-    if (!code.includes('module')) {
-      errors.push('Missing module declaration');
-    }
+  //   // Check for missing module declaration
+  //   if (!code.includes('module')) {
+  //     errors.push('Missing module declaration');
+  //   }
     
-    // Check for missing endmodule
-    if (code.includes('module') && !code.includes('endmodule')) {
-      errors.push('Missing endmodule statement');
-    }
+  //   // Check for missing endmodule
+  //   if (code.includes('module') && !code.includes('endmodule')) {
+  //     errors.push('Missing endmodule statement');
+  //   }
     
-    // Check for mismatched begin/end pairs - this is a more reliable check
-    const beginCount = (code.match(/\bbegin\b/g) || []).length;
-    const endCount = (code.match(/\bend\b/g) || []).length;
-    if (beginCount !== endCount) {
-      errors.push(`Mismatched begin/end pairs: ${beginCount} begin(s) and ${endCount} end(s)`);
-    }
+  //   // Check for mismatched begin/end pairs - this is a more reliable check
+  //   const beginCount = (code.match(/\bbegin\b/g) || []).length;
+  //   const endCount = (code.match(/\bend\b/g) || []).length;
+  //   if (beginCount !== endCount) {
+  //     errors.push(`Mismatched begin/end pairs: ${beginCount} begin(s) and ${endCount} end(s)`);
+  //   }
     
-    // Check for basic syntax errors that are likely to cause compilation failures
-    // We'll be more lenient with style issues
+  //   // Check for basic syntax errors that are likely to cause compilation failures
+  //   // We'll be more lenient with style issues
     
-    // Check for completely missing parentheses in if statements
-    // Only check for if statements that are part of procedural blocks (always, initial)
-    const proceduralIfRegex = /(always|initial)\s+.*\bif\b(?!\s*\().*begin/g;
-    if (proceduralIfRegex.test(code)) {
-      errors.push('Missing parentheses in if statement within procedural block');
-    }
+  //   // Check for completely missing parentheses in if statements
+  //   // Only check for if statements that are part of procedural blocks (always, initial)
+  //   const proceduralIfRegex = /(always|initial)\s+.*\bif\b(?!\s*\().*begin/g;
+  //   if (proceduralIfRegex.test(code)) {
+  //     errors.push('Missing parentheses in if statement within procedural block');
+  //   }
     
-    // Check for completely missing parentheses in else if statements
-    // Only check for else if statements that are part of procedural blocks
-    const proceduralElseIfRegex = /(always|initial)\s+.*\belse\s+if\b(?!\s*\().*begin/g;
-    if (proceduralElseIfRegex.test(code)) {
-      errors.push('Missing parentheses in else if statement within procedural block');
-    }
+  //   // Check for completely missing parentheses in else if statements
+  //   // Only check for else if statements that are part of procedural blocks
+  //   const proceduralElseIfRegex = /(always|initial)\s+.*\belse\s+if\b(?!\s*\().*begin/g;
+  //   if (proceduralElseIfRegex.test(code)) {
+  //     errors.push('Missing parentheses in else if statement within procedural block');
+  //   }
     
-    // We'll skip the semicolon checks as they're too restrictive and flag valid Verilog syntax
+  //   // We'll skip the semicolon checks as they're too restrictive and flag valid Verilog syntax
     
-    return errors;
-  };
+  //   return errors;
+  // };
+
 
   return (
     <div className="flex flex-col h-screen bg-[#1e1e1e] text-white font-['Menlo',_'Monaco',_'Courier_New',_monospace]">
@@ -1243,6 +1278,36 @@ export default function SimulationPage() {
               Help
             </span>
           </button>
+
+          <div className="flex items-center">
+            <label className="px-3 py-1 rounded text-sm bg-green-600 hover:bg-green-700 cursor-pointer">
+              <span className="flex items-center text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13l-3 3m0 0l-3-3m3 3V8" />
+                </svg>
+                Upload a file
+              </span>
+              <input
+                type="file"
+                multiple
+                accept=".v,.sv"
+                onChange={handleBulkUpload}
+                className="hidden"
+              />
+            </label>
+          </div>
+
+          <button onClick={() => setShowDeleteModal(true)} className="flex items-center">
+            <label className="px-3 py-1 rounded text-sm bg-red-600 hover:bg-red-700 cursor-pointer">
+              <span className="flex items-center text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4m-4 0a1 1 0 00-1 1v1h6V4a1 1 0 00-1-1m-4 0h4" />
+                </svg>
+                Remove All Files
+              </span>
+            </label>
+          </button>
           
           {/* Top Module Selector */}
           <div className="flex items-center">
@@ -1270,14 +1335,6 @@ export default function SimulationPage() {
                 </svg>
               </div>
             </div>
-            <button
-              onClick={() => setShowManualModuleInput(!showManualModuleInput)}
-              className="ml-2 text-xs bg-[#3c3c3c] hover:bg-[#4c4c4c] px-2 py-1.5 rounded border border-[#555] focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={isSimulating || backendStatus !== 'online'}
-              aria-label={showManualModuleInput ? "Cancel adding module" : "Add module manually"}
-            >
-              {showManualModuleInput ? 'Cancel' : 'Add Module'}
-            </button>
           </div>
 
           {/* Top Testbench Selector */}
@@ -1306,14 +1363,6 @@ export default function SimulationPage() {
                 </svg>
               </div>
             </div>
-            <button
-              onClick={() => setShowManualTestbenchInput(!showManualTestbenchInput)}
-              className="ml-2 text-xs bg-[#3c3c3c] hover:bg-[#4c4c4c] px-2 py-1.5 rounded border border-[#555] focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={isSimulating || backendStatus !== 'online'}
-              aria-label={showManualTestbenchInput ? "Cancel adding testbench" : "Add testbench manually"}
-            >
-              {showManualTestbenchInput ? 'Cancel' : 'Add Testbench'}
-            </button>
           </div>
 
           {showManualModuleInput && (
@@ -1513,14 +1562,12 @@ export default function SimulationPage() {
                     >
                       {file.name}
                     </button>
-                    {files.length > 1 && (
                       <button
                         onClick={() => closeFile(file.id)}
                         className="ml-2 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-white"
                       >
                         ×
                       </button>
-                    )}
                   </div>
                 ))}
               </div>
@@ -2134,6 +2181,39 @@ endmodule`}</pre>
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white"
               >
                 Got it
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-[#252526] p-6 rounded-lg shadow-lg w-3/4 max-w-3xl max-h-[80vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-white">Are you sure you want to delete all your files ?</h2>
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="text-gray-400 hover:text-white"
+                aria-label="Close help modal"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+              
+            
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                   setFiles([]);
+                  }}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white"
+              >
+                Yes
               </button>
             </div>
           </div>

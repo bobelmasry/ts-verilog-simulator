@@ -17,6 +17,7 @@ type SimulationResponse = {
 };
 
 // Backend configuration
+//const BACKEND_BASE_URL = 'http://localhost:8001';
 const BACKEND_BASE_URL = 'https://ts-verilog-simulator-backend.onrender.com';
 const BACKEND_API_URL = `${BACKEND_BASE_URL}/api/v1`;
 

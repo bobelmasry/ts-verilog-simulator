@@ -505,8 +505,12 @@ const WaveformViewer = forwardRef<WaveformViewerRef, WaveformViewerProps>(({ vcd
       if (line.startsWith('$var')) {
         const parts = line.split(' ');
         if (parts.length < 5) continue;
+        
+        if (parts[4] === 'a') {
+          console.log(parts)
+        }
 
-        const width = parseInt(parts[2]) || 1;
+        let width = parseInt(parts[2]);
         const id = parts[3];
         let name = parts[4];
 
@@ -514,14 +518,22 @@ const WaveformViewer = forwardRef<WaveformViewerRef, WaveformViewerProps>(({ vcd
         name = name.replace(/\[\d+(?::\d+)?\]$/, '');
 
         idToName[id] = name;
-        idToWidth[id] = width;
+        width = isNaN(width) ? 1 : width;
+
+        // If we've already seen this signal, keep the maximum width
+        if (idToWidth[name]) {
+          idToWidth[name] = Math.max(idToWidth[name], width);
+        } else {
+          idToWidth[name] = width;
+        }
+        console.log(idToWidth['9#'])
 
         // Initialize signal with empty values array
         tempSignals[name] = {
           id,
           name,
           values: [],
-          width,
+          width : idToWidth[name],
           color: width > 1 ? BUS_COLOR : WAVE_COLOR,
           isBus: width > 1
         };
